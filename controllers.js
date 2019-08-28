@@ -36,7 +36,9 @@ exports.login = (req, res) => {
 }
 
 exports.logout = (req, res) => {
-	req.session.destroy()
+	req.session.destroy(_ => {
+		res.status(200).end()
+	})
 }
 
 exports.registerTeacher = async (req, res) => {
@@ -44,6 +46,7 @@ exports.registerTeacher = async (req, res) => {
 	if (!validateInput(name, email, school, password))
 		return res.status(400).end()
 
+	// TODO: no duplicate teachers
 	let passHashed = await auth.hash(password)
 
 	const newTeacher = new Teachers({
@@ -55,7 +58,7 @@ exports.registerTeacher = async (req, res) => {
 	})
 
 	try {
-		const teacherObject = await newTeacher.save()
+		await newTeacher.save()
 		res.status(200).end()
 	} catch (err) {
 		console.log(err)
@@ -67,6 +70,8 @@ exports.registerStudent = async (req, res) => {
 	let { name, email, password } = req.body
 	if (!validateInput(name, email, password)) return res.status(400).end()
 
+	// TODO: no duplicate students
+
 	let passHashed = await auth.hash(password)
 
 	const newStudent = new Students({
@@ -77,7 +82,7 @@ exports.registerStudent = async (req, res) => {
 	})
 
 	try {
-		const studentObject = await newStudent.save()
+		await newStudent.save()
 		res.status(200).end()
 	} catch (err) {
 		console.log(err)

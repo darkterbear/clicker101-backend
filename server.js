@@ -7,10 +7,8 @@ const mongoose = require('mongoose')
 const MongoStore = require('connect-mongo')(session)
 const bodyParser = require('body-parser')
 const app = express()
-const schemas = require('./schemas')
 const routes = require('./routes')
-const auth = require('./auth')
-const sockets = require('./sockets')
+// const sockets = require('./sockets')
 const port = 3000
 
 require('dotenv').config()
@@ -30,13 +28,16 @@ const server = require('http').Server(app)
 
 // mongodb
 mongoose.Promise = global.Promise
-mongoose.connect('mongodb://localhost/clicker101DB', {
-	useMongoClient: true
-})
+mongoose.connect(
+	`mongodb+srv://clicker101app:${process.env.DATABASE_PASSWORD}@cluster0-pgatj.mongodb.net/clicker101db?retryWrites=true&w=majority`,
+	{
+		useMongoClient: true
+	}
+)
 let db = mongoose.connection
 
 db.once('open', async () => {
-	console.log('Connected to MongoDB at mongodb://localhost/clicker101DB')
+	console.log('Connected to MongoDB')
 })
 
 // sessions
@@ -60,7 +61,7 @@ const sessionMiddleware = session({
 	unset: 'destroy'
 })
 
-sockets.init(server, sessionMiddleware)
+// sockets.init(server, sessionMiddleware)
 
 app.use(sessionMiddleware)
 app.use(

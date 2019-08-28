@@ -7,50 +7,46 @@ const auth = require('./auth')
 // mongoose models
 const { Teachers, Classes, Students, ProblemSets } = schemas
 
-exports.authenticateTeacher = (req, res, next) => {
+exports.authenticateTeacher = async (req, res, next) => {
 	let email = req.body.email
 	let password = req.body.password
 
 	if (!email || !password) return res.status(400).end()
 
-	Teachers.findOne(
-		{
-			email
-		},
-		(err, teacher) => {
-			if (err || !teacher) return res.status(404).end()
-			auth.check(password, teacher.passHashed, valid => {
-				if (valid) {
-					res.locals.user = teacher
-					req.session.authenticated = true
-					next()
-				} else res.status(401).end()
-			})
-		}
-	)
+	let teacher = await Teachers.findOne({
+		email
+	}).exec()
+
+	if (!teacher) return res.status(404).end()
+
+	let valid = await auth.check(password, teacher.passHashed)
+
+	if (valid) {
+		res.locals.user = teacher
+		req.session.authenticated = true
+		next()
+	} else res.status(401).end()
 }
 
-exports.authenticateStudent = (req, res, next) => {
+exports.authenticateStudent = async (req, res, next) => {
 	let email = req.body.email
 	let password = req.body.password
 
 	if (!email || !password) return res.status(400).end()
 
-	Students.findOne(
-		{
-			email
-		},
-		(err, student) => {
-			if (err || !student) return res.status(404).end()
-			auth.check(password, student.passHashed, valid => {
-				if (valid) {
-					res.locals.user = student
-					req.session.authenticated = true
-					next()
-				} else res.status(401).end()
-			})
-		}
-	)
+	let student = await Students.findOne({
+		email
+	}).exec()
+
+	if (!student) return res.status(404).end()
+
+	let valid = await auth.check(password, student.passHashed)
+
+	if (valid) {
+		res.locals.user = student
+		req.session.authenticated = true
+		next()
+	} else res.status(401).end()
 }
 
 exports.verifyTeacher = async (req, res, next) => {
