@@ -27,10 +27,10 @@ module.exports = app => {
 	app.route('/api/students/register/').post(controllers.registerStudent)
 
 	// teacher routes
-	// app
-	// 	.route('/api/teachers/create-class')
-	// 	.post(middleware.verifyTeacher)
-	// 	.post(controllers.createClass)
+	app
+		.route('/api/teachers/create-class')
+		.post(middleware.verifyTeacher)
+		.post(controllers.createClass)
 
 	// app
 	// 	.route('/api/teachers/create-problem-set')

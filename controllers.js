@@ -46,7 +46,9 @@ exports.registerTeacher = async (req, res) => {
 	if (!validateInput(name, email, school, password))
 		return res.status(400).end()
 
-	// TODO: no duplicate teachers
+	let existingTeacher = await Teachers.findOne({ email }).exec()
+	if (existingTeacher) return res.status(409)
+
 	let passHashed = await auth.hash(password)
 
 	const newTeacher = new Teachers({
@@ -70,7 +72,8 @@ exports.registerStudent = async (req, res) => {
 	let { name, email, password } = req.body
 	if (!validateInput(name, email, password)) return res.status(400).end()
 
-	// TODO: no duplicate students
+	let existingStudent = await Students.findOne({ email }).exec()
+	if (existingStudent) return res.status(409)
 
 	let passHashed = await auth.hash(password)
 
@@ -83,6 +86,29 @@ exports.registerStudent = async (req, res) => {
 
 	try {
 		await newStudent.save()
+		res.status(200).end()
+	} catch (err) {
+		console.log(err)
+		res.status(500).end()
+	}
+}
+
+// teacher routes
+exports.createClass = async (req, res) => {
+	let name = req.body.name
+	if (!name) return res.status(400).end()
+
+	const newClass = new Classes({
+		name,
+		teacher: res.locals.user._id,
+		code: hat(8),
+		students: [],
+		problemSets: [],
+		currentProblemSet: null
+	})
+
+	try {
+		await newClass.save()
 		res.status(200).end()
 	} catch (err) {
 		console.log(err)
