@@ -9,12 +9,15 @@ let TeacherSchema = new Schema(
 		email: String,
 		school: String,
 		passHashed: String,
-		classes: [
-			{
-				type: Schema.Types.ObjectId,
-				ref: 'Classes'
-			}
-		]
+		classes: {
+			type: [
+				{
+					type: Schema.Types.ObjectId,
+					ref: 'Classes'
+				}
+			],
+			default: []
+		}
 	},
 	{ collection: 'teachers' }
 )
@@ -27,21 +30,28 @@ let ClassSchema = new Schema(
 			ref: 'Teachers'
 		},
 		code: String,
-		students: [
-			{
-				type: Schema.Types.ObjectId,
-				ref: 'Students'
-			}
-		],
-		problemSets: [
-			{
-				type: Schema.Types.ObjectId,
-				ref: 'ProblemSets'
-			}
-		],
+		students: {
+			type: [
+				{
+					type: Schema.Types.ObjectId,
+					ref: 'Students'
+				}
+			],
+			default: []
+		},
+		problemSets: {
+			type: [
+				{
+					type: Schema.Types.ObjectId,
+					ref: 'ProblemSets'
+				}
+			],
+			default: []
+		},
 		currentProblemSet: {
 			type: Schema.Types.ObjectId,
-			ref: 'ProblemSets'
+			ref: 'ProblemSets',
+			default: null
 		}
 	},
 	{ collection: 'classes' }
@@ -66,24 +76,34 @@ let ProblemSetSchema = new Schema(
 	{
 		name: String,
 		date: Date,
+		// TODO: different types of problems
 		problems: [
 			{
 				question: String,
 				choices: [String],
 				correct: Number,
-				responses: [
-					{
-						student: {
-							type: Schema.Types.ObjectId,
-							ref: 'Students'
-						},
-						response: Number
-					}
-				]
+				responses: {
+					type: [
+						{
+							student: {
+								type: Schema.Types.ObjectId,
+								ref: 'Students'
+							},
+							response: Number
+						}
+					],
+					default: []
+				}
 			}
 		],
-		executionDate: Date,
-		currentProblem: Number
+		executionDate: {
+			type: Date,
+			default: null
+		},
+		currentProblem: {
+			type: Number,
+			default: null
+		}
 	},
 	{ collection: 'problemSets' }
 )

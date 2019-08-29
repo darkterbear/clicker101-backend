@@ -92,7 +92,6 @@ exports.verifyOwnsClass = async (req, res, next) => {
 	if (user.classes.some(c => c._id.toString() === classId)) {
 		next()
 	} else {
-		console.log(err)
 		res.status(403).end()
 	}
 }

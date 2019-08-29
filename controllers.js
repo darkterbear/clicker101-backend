@@ -55,8 +55,7 @@ exports.registerTeacher = async (req, res) => {
 		name,
 		email,
 		school,
-		passHashed,
-		classes: []
+		passHashed
 	})
 
 	try {
@@ -80,8 +79,7 @@ exports.registerStudent = async (req, res) => {
 	const newStudent = new Students({
 		name,
 		email,
-		passHashed,
-		classes: []
+		passHashed
 	})
 
 	try {
@@ -101,14 +99,42 @@ exports.createClass = async (req, res) => {
 	const newClass = new Classes({
 		name,
 		teacher: res.locals.user._id,
-		code: hat(8),
-		students: [],
-		problemSets: [],
-		currentProblemSet: null
+		code: hat(8)
 	})
 
 	try {
-		await newClass.save()
+		let classObject = await newClass.save()
+
+		await Teachers.updateOne(
+			{ _id: res.locals.user._id },
+			{ $push: { classes: classObject._id } }
+		).exec()
+
+		res.status(200).end()
+	} catch (err) {
+		console.log(err)
+		res.status(500).end()
+	}
+}
+
+exports.createProblemSet = async (req, res) => {
+	let { name, problems, classId } = req.body
+	if (!name || !problems || !classId) return res.status(400).end()
+
+	const newProblemSet = new ProblemSets({
+		name,
+		date: new Date(),
+		problems
+	})
+
+	try {
+		let problemSetObject = await newProblemSet.save()
+
+		await Classes.updateOne(
+			{ _id: classId },
+			{ $push: { problemSets: problemSetObject._id } }
+		).exec()
+
 		res.status(200).end()
 	} catch (err) {
 		console.log(err)
