@@ -1,13 +1,13 @@
 {
 	"name": "clicker101-server",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"description": "",
 	"main": "server.js",
 	"scripts": {
 		"start": "pm2 start server.js --name clicker101-server",
 		"restart": "pm2 restart clicker101-server"
 	},
-	"author": "Terrance Li & Sriram Thothatri",
+	"author": "Terrance Li",
 	"dependencies": {
 		"bcryptjs": "2.4.3",
 		"body-parser": "1.19.0",
