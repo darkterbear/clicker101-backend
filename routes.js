@@ -38,11 +38,11 @@ module.exports = app => {
 		.post(middleware.verifyOwnsClass)
 		.post(controllers.createProblemSet)
 
-	// app
-	// 	.route('/api/teachers/execute-problem-set')
-	// 	.post(middleware.verifyTeacher)
-	// 	.post(middleware.verifyOwnsProblemSet)
-	// 	.post(controllers.executeProblemSet)
+	app
+		.route('/api/teachers/execute-problem-set')
+		.post(middleware.verifyTeacher)
+		.post(middleware.verifyOwnsProblemSet)
+		.post(controllers.executeProblemSet)
 
 	// app
 	// 	.route('/api/teachers/start-next-problem')

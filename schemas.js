@@ -76,6 +76,10 @@ let ProblemSetSchema = new Schema(
 	{
 		name: String,
 		date: Date,
+		classId: {
+			type: Schema.Types.ObjectId,
+			ref: 'Classes'
+		},
 		// TODO: different types of problems
 		problems: [
 			{

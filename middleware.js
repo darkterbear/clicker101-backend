@@ -109,7 +109,6 @@ exports.verifyOwnsProblemSet = async (req, res, next) => {
 	) {
 		next()
 	} else {
-		console.log(err)
 		res.status(403).end()
 	}
 }

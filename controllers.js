@@ -124,6 +124,7 @@ exports.createProblemSet = async (req, res) => {
 	const newProblemSet = new ProblemSets({
 		name,
 		date: new Date(),
+		classId,
 		problems
 	})
 
@@ -140,4 +141,28 @@ exports.createProblemSet = async (req, res) => {
 		console.log(err)
 		res.status(500).end()
 	}
+}
+
+exports.executeProblemSet = async (req, res) => {
+	let problemSetId = req.body.problemSetId
+
+	// check that the problem set hasn't been executed already
+	let problemSet = await ProblemSets.findOne({ _id: problemSetId }).exec()
+	if (problemSet.executionDate) return res.status(409).end()
+
+	// activate the problemset
+	await ProblemSets.updateOne(
+		{ _id: problemSetId },
+		{ $set: { executionDate: new Date(), currentProblem: 0 } }
+	).exec()
+
+	// set this problemset as active in the class
+	await Classes.updateOne(
+		{ _id: problemSet.classId },
+		{ $set: { currentProblemSet: problemSetId } }
+	).exec()
+
+	// TODO: socket push a start command to the student clients
+
+	res.status(200).end()
 }
