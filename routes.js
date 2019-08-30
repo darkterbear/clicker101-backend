@@ -44,10 +44,11 @@ module.exports = app => {
 		.post(middleware.verifyOwnsProblemSet)
 		.post(controllers.executeProblemSet)
 
-	// app
-	// 	.route('/api/teachers/start-next-problem')
-	// 	.post(middleware.verifyTeacher)
-	// 	.post(controllers.startNextProblem)
+	app
+		.route('/api/teachers/start-next-problem')
+		.post(middleware.verifyTeacher)
+		.post(middleware.verifyOwnsClass)
+		.post(controllers.startNextProblem)
 
 	// app
 	// 	.route('/api/teachers/fetch-classes')

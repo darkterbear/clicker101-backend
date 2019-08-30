@@ -166,3 +166,40 @@ exports.executeProblemSet = async (req, res) => {
 
 	res.status(200).end()
 }
+
+exports.startNextProblem = async (req, res) => {
+	let classId = req.body.classId
+
+	let classObj = await Classes.findOne({ _id: classId }).exec()
+
+	if (!classObj) return res.status(400).end()
+	if (!classObj.currentProblemSet) return res.status(409).end()
+
+	let problemSet = await ProblemSets.findOne({
+		_id: classObj.currentProblemSet
+	}).exec()
+
+	if (problemSet.currentProblem === null) return res.status(409).end()
+
+	if (problemSet.currentProblem >= problemSet.problems.length - 1) {
+		// finished problem set
+		await ProblemSets.updateOne(
+			{ _id: classObj.currentProblemSet },
+			{ $set: { currentProblem: null } }
+		)
+
+		// TODO: socket push completion to student clients
+
+		res.status(204).end()
+	} else {
+		// update the problem number
+		await ProblemSets.updateOne(
+			{ _id: classObj.currentProblemSet },
+			{ $set: { currentProblem: problemSet.currentProblem + 1 } }
+		)
+
+		// TODO: socket push next problem to student clients
+
+		res.status(200).end()
+	}
+}
