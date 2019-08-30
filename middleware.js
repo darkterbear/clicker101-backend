@@ -86,6 +86,7 @@ exports.verifyStudent = async (req, res, next) => {
 exports.verifyOwnsClass = async (req, res, next) => {
 	let user = res.locals.user
 	let classId = req.body.classId
+	if (!classId) classId = req.query.classId
 
 	if (!classId) res.status(400).end()
 

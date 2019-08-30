@@ -50,16 +50,16 @@ module.exports = app => {
 		.post(middleware.verifyOwnsClass)
 		.post(controllers.startNextProblem)
 
-	// app
-	// 	.route('/api/teachers/fetch-classes')
-	// 	.get(middleware.verifyTeacher)
-	// 	.get(controllers.fetchClasses)
+	app
+		.route('/api/teachers/fetch-classes')
+		.get(middleware.verifyTeacher)
+		.get(controllers.fetchClasses)
 
-	// app
-	// 	.route('/api/teachers/fetch-class')
-	// 	.get(middleware.verifyTeacher)
-	// 	.get(middleware.verifyOwnsClass)
-	// 	.get(controllers.fetchClass)
+	app
+		.route('/api/teachers/fetch-class')
+		.get(middleware.verifyTeacher)
+		.get(middleware.verifyOwnsClass)
+		.get(controllers.fetchClass)
 
 	// app
 	// 	.route('/api/teachers/fetch-problem-sets')

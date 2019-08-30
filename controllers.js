@@ -172,13 +172,14 @@ exports.startNextProblem = async (req, res) => {
 
 	let classObj = await Classes.findOne({ _id: classId }).exec()
 
-	if (!classObj) return res.status(400).end()
+	// check that a problem set is running
 	if (!classObj.currentProblemSet) return res.status(409).end()
 
 	let problemSet = await ProblemSets.findOne({
 		_id: classObj.currentProblemSet
 	}).exec()
 
+	// check again that the problemset is running
 	if (problemSet.currentProblem === null) return res.status(409).end()
 
 	if (problemSet.currentProblem >= problemSet.problems.length - 1) {
@@ -187,6 +188,11 @@ exports.startNextProblem = async (req, res) => {
 			{ _id: classObj.currentProblemSet },
 			{ $set: { currentProblem: null } }
 		)
+
+		await Classes.updateOne(
+			{ _id: classId },
+			{ $set: { currentProblemSet: null } }
+		).exec()
 
 		// TODO: socket push completion to student clients
 
@@ -202,4 +208,20 @@ exports.startNextProblem = async (req, res) => {
 
 		res.status(200).end()
 	}
+}
+
+exports.fetchClasses = async (req, res) => {
+	res.status(200).json(res.locals.user.classes)
+}
+
+exports.fetchClass = async (req, res) => {
+	let classId = req.query.classId
+
+	let classObj = await Classes.findOne({ _id: classId })
+		.populate('students')
+		.populate('problemSets')
+		.populate('currentProblemSet')
+		.exec()
+
+	res.status(200).json(classObj)
 }
