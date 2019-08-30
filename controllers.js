@@ -93,22 +93,24 @@ exports.registerStudent = async (req, res) => {
 
 // teacher routes
 exports.createClass = async (req, res) => {
+	let teacher = res.locals.user
 	let name = req.body.name
 	if (!name) return res.status(400).end()
 
+	let code = hat(8)
+	while ((await Classes.findOne({ code })) !== null) code = hat(8)
+
 	const newClass = new Classes({
 		name,
-		teacher: res.locals.user._id,
+		teacher: teacher._id,
 		code: hat(8)
 	})
 
 	try {
 		let classObject = await newClass.save()
 
-		await Teachers.updateOne(
-			{ _id: res.locals.user._id },
-			{ $push: { classes: classObject._id } }
-		).exec()
+		teacher.classes.push(classObject._id)
+		await teacher.save()
 
 		res.status(200).end()
 	} catch (err) {
@@ -151,10 +153,10 @@ exports.executeProblemSet = async (req, res) => {
 	if (problemSet.executionDate) return res.status(409).end()
 
 	// activate the problemset
-	await ProblemSets.updateOne(
-		{ _id: problemSetId },
-		{ $set: { executionDate: new Date(), currentProblem: 0 } }
-	).exec()
+	problemSet.executionDate = new Date()
+	problemSet.currentProblem = 0
+
+	await problemSet.save()
 
 	// set this problemset as active in the class
 	await Classes.updateOne(
@@ -184,25 +186,19 @@ exports.startNextProblem = async (req, res) => {
 
 	if (problemSet.currentProblem >= problemSet.problems.length - 1) {
 		// finished problem set
-		await ProblemSets.updateOne(
-			{ _id: classObj.currentProblemSet },
-			{ $set: { currentProblem: null } }
-		)
+		problemSet.currentProblem = null
+		await problemSet.save()
 
-		await Classes.updateOne(
-			{ _id: classId },
-			{ $set: { currentProblemSet: null } }
-		).exec()
+		classObj.currentProblemSet = null
+		await classObj.save()
 
 		// TODO: socket push completion to student clients
 
 		res.status(204).end()
 	} else {
 		// update the problem number
-		await ProblemSets.updateOne(
-			{ _id: classObj.currentProblemSet },
-			{ $set: { currentProblem: problemSet.currentProblem + 1 } }
-		)
+		problemSet.currentProblem++
+		await problemSet.save()
 
 		// TODO: socket push next problem to student clients
 
@@ -253,4 +249,52 @@ exports.fetchProblemSet = async (req, res) => {
 
 	// WARNING: classId is the populated class object!
 	res.status(200).json(problemSet)
+}
+
+exports.joinClass = async (req, res) => {
+	let student = res.locals.user
+	let code = req.body.code
+
+	let classObj = await Classes.findOne({ code }).exec()
+
+	if (!classObj) return res.status(404).end()
+
+	// add student to class
+	classObj.students.push(student._id)
+	await classObj.save()
+
+	// add class to student
+	student.classes.push(classObj._id)
+	await student.save()
+
+	res.status(200).end()
+}
+
+exports.answer = async (req, res) => {
+	let { answer, classId } = req.body
+
+	let classObj = await Classes.findOne({ _id: classId }).exec()
+	if (!classObj.currentProblemSet) return res.status(404).end()
+
+	let problemSet = await ProblemSets.findOne({
+		_id: classObj.currentProblemSet
+	}).exec()
+	if (
+		!problemSet ||
+		!problemSet.executionDate ||
+		problemSet.currentProblem === null
+	)
+		return res.status(404).end()
+
+	// add answer to the problemSet's current problem
+	let currentProblem = problemSet.problems[problemSet.currentProblem]
+	if (answer < 0 || answer >= currentProblem.choices.length)
+		return res.status(400) // check if answer is valid
+
+	currentProblem.responses.push({
+		student: res.locals.user._id,
+		response: answer
+	})
+
+	await problemSet.save()
 }

@@ -56,7 +56,7 @@ exports.verifyTeacher = async (req, res, next) => {
 
 	try {
 		const teacher = await Teachers.findOne({ _id: id })
-			.populate({ path: 'classes' })
+			.populate('classes')
 			.exec()
 
 		res.locals.user = teacher
@@ -73,7 +73,13 @@ exports.verifyStudent = async (req, res, next) => {
 	if (!id) return res.status(401).end()
 
 	try {
-		const student = await Students.findOne({ _id: id }).exec()
+		const student = await Students.findOne({ _id: id })
+			.populate({
+				path: 'classes',
+				select: ['_id', 'name'],
+				populate: { path: 'teacher', select: ['name', 'email', 'school'] }
+			})
+			.exec()
 
 		res.locals.user = student
 		next()
