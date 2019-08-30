@@ -61,17 +61,17 @@ module.exports = app => {
 		.get(middleware.verifyOwnsClass)
 		.get(controllers.fetchClass)
 
-	// app
-	// 	.route('/api/teachers/fetch-problem-sets')
-	// 	.get(middleware.verifyTeacher)
-	// 	.get(middleware.verifyOwnsClass)
-	// 	.get(controllers.fetchProblemSet)
+	app
+		.route('/api/teachers/fetch-problem-sets')
+		.get(middleware.verifyTeacher)
+		.get(middleware.verifyOwnsClass)
+		.get(controllers.fetchProblemSets)
 
-	// app
-	// 	.route('/api/teachers/fetch-problem-set')
-	// 	.get(middleware.verifyTeacher)
-	// 	.get(middleware.verifyOwnsProblemSet)
-	// 	.get(controllers.fetchProblemSet)
+	app
+		.route('/api/teachers/fetch-problem-set')
+		.get(middleware.verifyTeacher)
+		.get(middleware.verifyOwnsProblemSet)
+		.get(controllers.fetchProblemSet)
 
 	// // student routes
 	// app

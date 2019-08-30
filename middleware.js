@@ -100,6 +100,7 @@ exports.verifyOwnsClass = async (req, res, next) => {
 exports.verifyOwnsProblemSet = async (req, res, next) => {
 	let teacher = res.locals.user
 	let problemSetId = req.body.problemSetId
+	if (!problemSetId) problemSetId = req.query.problemSetId
 
 	if (!problemSetId) res.status(400).end()
 

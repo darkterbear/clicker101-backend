@@ -225,3 +225,32 @@ exports.fetchClass = async (req, res) => {
 
 	res.status(200).json(classObj)
 }
+
+exports.fetchProblemSets = async (req, res) => {
+	let classId = req.query.classId
+
+	// TODO: test that this population of student actually works
+	let classObj = await Classes.findOne({ _id: classId })
+		.populate({
+			path: 'problemSets',
+			populate: { path: 'problems.responses.student' }
+		})
+		.exec()
+
+	res.status(200).json({
+		problemSets: classObj.problemSets,
+		currentProblemSet: classObj.currentProblemSet
+	})
+}
+
+exports.fetchProblemSet = async (req, res) => {
+	let problemSetId = req.query.problemSetId
+
+	let problemSet = await ProblemSets.findOne({ _id: problemSetId })
+		.populate('classId') // CAREFUL!
+		.populate('problems.responses.student')
+		.exec()
+
+	// WARNING: classId is the populated class object!
+	res.status(200).json(problemSet)
+}
