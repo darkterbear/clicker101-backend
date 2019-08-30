@@ -84,9 +84,9 @@ module.exports = app => {
 		.get(middleware.verifyStudent)
 		.get(controllers.fetchClasses)
 
-	// app
-	// 	.route('/api/students/answer')
-	// 	.post(middleware.verifyStudent)
-	// 	.post(middleware.verifyOwnsClass)
-	// 	.post(controllers.answer)
+	app
+		.route('/api/students/answer')
+		.post(middleware.verifyStudent)
+		.post(middleware.verifyOwnsClass)
+		.post(controllers.answer)
 }

@@ -297,4 +297,5 @@ exports.answer = async (req, res) => {
 	})
 
 	await problemSet.save()
+	res.status(200).end()
 }
