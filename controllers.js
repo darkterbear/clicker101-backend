@@ -242,10 +242,14 @@ exports.fetchProblemSets = async (req, res) => {
 exports.fetchProblemSet = async (req, res) => {
 	let problemSetId = req.query.problemSetId
 
-	let problemSet = await ProblemSets.findOne({ _id: problemSetId })
-		.populate('classId') // CAREFUL!
+	let rawProblemSet = await ProblemSets.findOne({ _id: problemSetId })
+		.populate('classId')
 		.populate('problems.responses.student')
 		.exec()
+
+	let problemSet = JSON.parse(JSON.stringify(rawProblemSet))
+	problemSet.class = problemSet.classId
+	problemSet.classId = problemSet.class._id
 
 	// WARNING: classId is the populated class object!
 	res.status(200).json(problemSet)
@@ -268,6 +272,24 @@ exports.joinClass = async (req, res) => {
 	await student.save()
 
 	res.status(200).end()
+}
+
+exports.getQuestion = async (req, res) => {
+	let classId = req.query.classId
+	let classObj = await Classes.findOne({ _id: classId }).exec()
+
+	let problemSet = await ProblemSets.findOne({
+		_id: classObj.currentProblemSet
+	}).exec()
+	if (!problemSet || problemSet.currentProblem === null) return res.status(404)
+
+	let problem = JSON.parse(
+		JSON.stringify(problemSet.problems[problemSet.currentProblem])
+	)
+	delete problem.responses
+	delete problem.correct
+
+	res.status(200).json(problem)
 }
 
 exports.answer = async (req, res) => {

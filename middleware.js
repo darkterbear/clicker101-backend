@@ -59,6 +59,8 @@ exports.verifyTeacher = async (req, res, next) => {
 			.populate('classes')
 			.exec()
 
+		if (!teacher) return res.status(401).end()
+
 		res.locals.user = teacher
 		next()
 	} catch (err) {
@@ -80,6 +82,8 @@ exports.verifyStudent = async (req, res, next) => {
 				populate: { path: 'teacher', select: ['name', 'email', 'school'] }
 			})
 			.exec()
+
+		if (!student) return res.status(401).end()
 
 		res.locals.user = student
 		next()
