@@ -7,22 +7,12 @@ const mongoose = require('mongoose')
 const MongoStore = require('connect-mongo')(session)
 const bodyParser = require('body-parser')
 const app = express()
-const routes = require('./routes')
-// const sockets = require('./sockets')
+const indexRoutes = require('./routes/index')
+const studentRoutes = require('./routes/student')
+const teacherRoutes = require('./routes/teacher')
 const port = 3000
 
 require('dotenv').config()
-
-// string helper functions
-String.prototype.isValidEmail = function() {
-	let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-	return re.test(this.toLowerCase())
-}
-
-String.prototype.isOnlyWhitespace = function() {
-	if (this === '') return true
-	return this.replace(/\s/g, '').length === 0
-}
 
 const server = require('http').Server(app)
 
@@ -61,8 +51,6 @@ const sessionMiddleware = session({
 	unset: 'destroy'
 })
 
-// sockets.init(server, sessionMiddleware)
-
 app.use(sessionMiddleware)
 app.use(
 	bodyParser.urlencoded({
@@ -89,7 +77,9 @@ app.use((req, res, next) => {
 	next()
 })
 
-routes(app)
+indexRoutes(app)
+studentRoutes(app)
+teacherRoutes(app)
 
 server.listen(port, () => {
 	console.log('Clicker101 API is live on port ' + port)
