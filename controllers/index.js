@@ -34,6 +34,11 @@ exports.register = async (req, res) => {
 		passHashed
 	})
 
-	await newUser.save()
+	let user = await newUser.save()
+
+	// log user in if valid
+	req.session.authenticated = true
+	req.session._id = user._id
+
 	res.status(200).end()
 }
