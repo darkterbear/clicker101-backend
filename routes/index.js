@@ -11,7 +11,12 @@ module.exports = app => {
 	})
 
 	// register, login, logout
-	app.route('/api/login/').post(authMiddleware.authenticate)
+	app
+		.route('/api/authenticate/')
+		.post(authMiddleware.authenticate)
+		.post((req, res) => {
+			res.status(req.userType === 'teacher' ? 200 : 201).end()
+		})
 
 	app.route('/api/logout/').post(indexController.logout)
 

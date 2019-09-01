@@ -31,12 +31,12 @@ exports.authenticate = async (req, res, next) => {
 			.exec()
 
 		if ((teacher && student) || !(teacher || student))
-			return res.status(500).end()
+			return res.status(401).end()
 
 		req.user = teacher ? teacher : student
 		req.userType = teacher ? 'teacher' : 'student'
 
-		return res.status(teacher ? 204 : 205).end()
+		return next()
 	}
 
 	// logging in with creds
@@ -44,7 +44,7 @@ exports.authenticate = async (req, res, next) => {
 	let student = await Students.findOne({ email }).exec()
 
 	if ((teacher && student) || !(teacher || student))
-		return res.status(500).end()
+		return res.status(401).end()
 
 	// determine if credentails are for teacher or student
 	let { user, code } = teacher
