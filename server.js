@@ -60,7 +60,7 @@ app.use(
 app.use(bodyParser.json())
 app.use((req, res, next) => {
 	let allowedOrigins = [
-		'http://localhost:3000',
+		'http://localhost:3001',
 		'https://terranceli.com',
 		'https://clicker101.terranceli.com'
 	]

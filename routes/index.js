@@ -11,10 +11,7 @@ module.exports = app => {
 	})
 
 	// register, login, logout
-	app
-		.route('/api/login/')
-		.post(authMiddleware.authenticate)
-		.post((_, res) => res.status(204).end())
+	app.route('/api/login/').post(authMiddleware.authenticate)
 
 	app.route('/api/logout/').post(indexController.logout)
 

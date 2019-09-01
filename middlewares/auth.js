@@ -36,7 +36,7 @@ exports.authenticate = async (req, res, next) => {
 		req.user = teacher ? teacher : student
 		req.userType = teacher ? 'teacher' : 'student'
 
-		return next()
+		return res.status(teacher ? 204 : 205).end()
 	}
 
 	// logging in with creds
