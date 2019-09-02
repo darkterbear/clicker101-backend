@@ -120,7 +120,7 @@ exports.startNextProblem = async (req, res) => {
 
 		// TODO: socket push completion to student clients
 
-		res.status(204).end()
+		res.status(200).end()
 	} else {
 		// update the problem number
 		problemSet.currentProblem++
