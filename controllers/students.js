@@ -56,14 +56,15 @@ exports.answer = async (req, res) => {
 	if (
 		!problemSet ||
 		!problemSet.executionDate ||
-		problemSet.currentProblem === null
+		problemSet.currentProblem === null ||
+		problemSet.currentProblem % 1 !== 0
 	)
 		return res.status(404).end()
 
 	// add answer to the problemSet's current problem
 	let currentProblem = problemSet.problems[problemSet.currentProblem]
 	if (answer < 0 || answer >= currentProblem.choices.length)
-		return res.status(400) // check if answer is valid
+		return res.status(400).end() // check if answer is valid
 
 	currentProblem.responses.push({
 		student: student._id,

@@ -43,6 +43,13 @@ module.exports = app => {
 		.post(teacherController.startNextProblem)
 
 	app
+		.route('/api/teachers/stop-this-problem')
+		.post(authMiddleware.authenticate)
+		.post(authMiddleware.teacher)
+		.post(classMiddleware.class)
+		.post(teacherController.stopThisProblem)
+
+	app
 		.route('/api/teachers/fetch-classes')
 		.get(authMiddleware.authenticate)
 		.get(authMiddleware.teacher)

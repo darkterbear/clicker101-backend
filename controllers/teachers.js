@@ -123,13 +123,35 @@ exports.startNextProblem = async (req, res) => {
 		res.status(200).end()
 	} else {
 		// update the problem number
-		problemSet.currentProblem++
+		problemSet.currentProblem = Math.ceil(problemSet.currentProblem)
 		await problemSet.save()
 
 		// TODO: socket push next problem to student clients
 
 		res.status(200).end()
 	}
+}
+
+exports.stopThisProblem = async (req, res) => {
+	let classObj = req.class
+
+	// check that a problem set is running
+	if (!classObj.currentProblemSet) return res.status(409).end()
+
+	let problemSet = await ProblemSets.findOne({
+		_id: classObj.currentProblemSet
+	}).exec()
+
+	// check again that the problemset is running
+	if (problemSet.currentProblem === null) return res.status(409).end()
+
+	// update the problem number
+	problemSet.currentProblem += 0.5
+	await problemSet.save()
+
+	// TODO: socket push next problem to student clients
+
+	res.status(200).end()
 }
 
 exports.fetchProblemSet = async (req, res) => {
