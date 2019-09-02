@@ -50,18 +50,29 @@ exports.createProblemSet = async (req, res) => {
 		problems
 	})
 
-	try {
-		let problemSetObject = await newProblemSet.save()
+	let problemSetObject = await newProblemSet.save()
 
-		let classObj = req.class
-		classObj.problemSets.push(problemSetObject._id)
-		await classObj.save()
+	let classObj = req.class
+	classObj.problemSets.push(problemSetObject._id)
+	await classObj.save()
 
-		res.status(200).end()
-	} catch (err) {
-		console.log(err)
-		res.status(500).end()
-	}
+	res.status(200).end()
+}
+
+exports.addProblem = async (req, res) => {
+	let { problemSet } = req
+	let { question, choices, correct } = req.body
+
+	problemSet.problems.push({
+		question,
+		choices,
+		correct,
+		responses: []
+	})
+
+	await problemSet.save()
+
+	res.status(200).end()
 }
 
 exports.executeProblemSet = async (req, res) => {
