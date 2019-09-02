@@ -66,10 +66,18 @@ exports.answer = async (req, res) => {
 	if (answer < 0 || answer >= currentProblem.choices.length)
 		return res.status(400).end() // check if answer is valid
 
-	currentProblem.responses.push({
-		student: student._id,
-		response: answer
-	})
+	let existingResponse = currentProblem.responses.find(
+		res => res.student._id.toString() === student._id.toString()
+	)
+
+	if (existingResponse) {
+		existingResponse.response = answer
+	} else {
+		currentProblem.responses.push({
+			student: student._id,
+			response: answer
+		})
+	}
 
 	await problemSet.save()
 	res.status(200).end()
