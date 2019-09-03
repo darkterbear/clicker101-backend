@@ -15,6 +15,19 @@ module.exports = app => {
 		.post(teacherController.createClass)
 
 	app
+		.route('/api/teachers/edit-class-name')
+		.post(authMiddleware.authenticate)
+		.post(authMiddleware.teacher)
+		.post(classMiddleware.class)
+		.post(teacherController.editClassName)
+	app
+		.route('/api/teachers/delete-class')
+		.post(authMiddleware.authenticate)
+		.post(authMiddleware.teacher)
+		.post(classMiddleware.class)
+		.post(teacherController.deleteClass)
+
+	app
 		.route('/api/teachers/create-problem-set')
 		.post(authMiddleware.authenticate)
 		.post(authMiddleware.teacher)

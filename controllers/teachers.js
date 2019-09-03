@@ -4,6 +4,7 @@ const { validateInput, hat } = require('../helpers/index')
 
 const Classes = require('../models/class')
 const ProblemSets = require('../models/problemset')
+const Students = require('../models/student')
 
 exports.createClass = async (req, res) => {
 	let teacher = req.user
@@ -37,6 +38,49 @@ exports.fetchClass = async (req, res) => {
 		.exec()
 
 	res.status(200).json(classObj)
+}
+
+exports.editClassName = async (req, res) => {
+	let { name, classId } = req.body
+	if (!validateInput(name, classId)) return res.status(400).end()
+
+	let classObj = req.class
+	classObj.name = name
+
+	await classObj.save()
+
+	res.status(200).end()
+}
+
+exports.deleteClass = async (req, res) => {
+	let { classId } = req.body
+	if (!validateInput(classId)) return res.status(400).end()
+
+	let classObj = req.class
+
+	// remove class from teacher
+	let teacher = req.user
+	teacher.classes = teacher.classes.filter(
+		c => c._id.toString() !== classObj._id.toString()
+	)
+	await teacher.save()
+
+	// remove class from students
+	classObj.students.forEach(async sId => {
+		let student = await Students.findOne({ _id: sId })
+		student.classes = student.classes.filter(
+			c => c._id.toString() !== classObj._id.toString()
+		)
+		await student.save()
+	})
+
+	// delete associated problemSets
+	await ProblemSets.deleteMany({ _id: classObj.problemSets }).exec()
+
+	// delete class object
+	await Classes.deleteOne({ _id: classObj._id }).exec()
+
+	res.status(200).end()
 }
 
 exports.createProblemSet = async (req, res) => {
