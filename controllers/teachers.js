@@ -103,6 +103,37 @@ exports.createProblemSet = async (req, res) => {
 	res.status(200).end()
 }
 
+exports.editProblemSetName = async (req, res) => {
+	let { name } = req.body
+	if (!name) return res.status(400).end()
+
+	let problemSet = req.problemSet
+	problemSet.name = name
+
+	await problemSet.save()
+
+	res.status(200).end()
+}
+
+exports.deleteProblemSet = async (req, res) => {
+	let { problemSetId } = req.body
+	if (!problemSetId) return res.status(400).end()
+
+	let problemSet = req.problemSet
+
+	// remove problemSet from class
+	let classObj = await Classes.findOne({ _id: problemSet.classId }).exec()
+	classObj.problemSets = classObj.problemSets.filter(
+		psId => psId.toString() !== problemSet._id.toString()
+	)
+	await classObj.save()
+
+	// delete problem set object
+	await ProblemSets.deleteOne({ _id: problemSet._id }).exec()
+
+	res.status(200).end()
+}
+
 exports.addProblem = async (req, res) => {
 	let { problemSet } = req
 	let { question, choices, correct } = req.body

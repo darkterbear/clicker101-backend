@@ -35,6 +35,20 @@ module.exports = app => {
 		.post(teacherController.createProblemSet)
 
 	app
+		.route('/api/teachers/edit-problem-set-name')
+		.post(authMiddleware.authenticate)
+		.post(authMiddleware.teacher)
+		.post(problemSetMiddleware.problemSet)
+		.post(teacherController.editProblemSetName)
+
+	app
+		.route('/api/teachers/delete-problem-set')
+		.post(authMiddleware.authenticate)
+		.post(authMiddleware.teacher)
+		.post(problemSetMiddleware.problemSet)
+		.post(teacherController.deleteProblemSet)
+
+	app
 		.route('/api/teachers/add-problem')
 		.post(authMiddleware.authenticate)
 		.post(authMiddleware.teacher)
