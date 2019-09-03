@@ -20,11 +20,11 @@ module.exports = app => {
 		.get(indexController.fetchClasses)
 
 	app
-		.route('/api/students/get-question')
+		.route('/api/students/get-problem')
 		.get(authMiddleware.authenticate)
 		.get(authMiddleware.student)
 		.get(classMiddleware.class)
-		.get(studentController.getQuestion)
+		.get(studentController.getProblem)
 
 	app
 		.route('/api/students/answer')

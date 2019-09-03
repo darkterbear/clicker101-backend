@@ -24,7 +24,7 @@ exports.joinClass = async (req, res) => {
 	res.status(200).end()
 }
 
-exports.getQuestion = async (req, res) => {
+exports.getProblem = async (req, res) => {
 	let classObj = req.class
 
 	let problemSet = await ProblemSets.findOne({
