@@ -150,6 +150,30 @@ exports.addProblem = async (req, res) => {
 	res.status(200).end()
 }
 
+exports.editProblem = async (req, res) => {
+	let { problemSet } = req
+	let { problemNumber, question, choices, correct } = req.body
+
+	problemSet.problems[problemNumber].question = question
+	problemSet.problems[problemNumber].choices = choices
+	problemSet.problems[problemNumber].correct = correct
+
+	await problemSet.save()
+
+	res.status(200).end()
+}
+
+exports.deleteProblem = async (req, res) => {
+	let { problemSet } = req
+	let { problemNumber } = req.body
+
+	problemSet.problems.splice(problemNumber, 1)
+
+	await problemSet.save()
+
+	res.status(200).end()
+}
+
 exports.executeProblemSet = async (req, res) => {
 	// check that the problem set hasn't been executed already
 	let problemSet = req.problemSet
