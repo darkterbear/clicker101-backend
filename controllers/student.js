@@ -25,6 +25,17 @@ exports.joinClass = async (req, res) => {
 	res.status(200).end()
 }
 
+exports.fetchClass = async (req, res) => {
+	let classObj = JSON.parse(JSON.stringify(req.class))
+
+	delete classObj.code
+	delete classObj.students
+	delete classObj.problemSets
+	delete classObj.currentProblemSet
+
+	res.status(200).json(classObj)
+}
+
 exports.getProblem = async (req, res) => {
 	let classObj = req.class
 
@@ -37,11 +48,16 @@ exports.getProblem = async (req, res) => {
 
 	// create deep copy of the problem to remove other responses and correct answer
 	let problem = JSON.parse(
-		JSON.stringify(problemSet.problems[problemSet.currentProblem])
+		JSON.stringify(problemSet.problems[Math.floor(problemSet.currentProblem)])
 	)
 
+	let response = problem.responses.filter(
+		res => res.student.toString() === req.user._id.toString()
+	)[0]
+
+	problem.response = response
 	delete problem.responses
-	delete problem.correct
+	if (problemSet.currentProblem % 1 === 0) problem.correct = null
 
 	res.status(200).json(problem)
 }

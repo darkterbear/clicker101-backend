@@ -20,6 +20,13 @@ module.exports = app => {
 		.get(indexController.fetchClasses)
 
 	app
+		.route('/api/students/fetch-class')
+		.get(authMiddleware.authenticate)
+		.get(authMiddleware.student)
+		.get(classMiddleware.class)
+		.get(studentController.fetchClass)
+
+	app
 		.route('/api/students/get-problem')
 		.get(authMiddleware.authenticate)
 		.get(authMiddleware.student)
