@@ -226,8 +226,8 @@ exports.stopThisProblem = async (req, res) => {
 	// check again that the problemset is running
 	if (problemSet.currentProblem === null) return res.status(409).end()
 
-	// if problem is already stopped, do nothing and respond 201
-	if (problemSet.currentProblem % 1 !== 0) return res.status(201).end()
+	// if problem is already stopped, do nothing and respond 200
+	if (problemSet.currentProblem % 1 !== 0) return res.status(200).end()
 
 	// update the problem number
 	problemSet.currentProblem += 0.5
