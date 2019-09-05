@@ -25,6 +25,24 @@ exports.joinClass = async (req, res) => {
 	res.status(200).end()
 }
 
+exports.leaveClass = async (req, res) => {
+	let classObj = req.class
+	let student = req.user
+
+	student.classes = student.classes.filter(
+		c => c._id.toString() !== classObj._id.toString()
+	)
+
+	classObj.students = classObj.students.filter(
+		s => s._id.toString() !== student._id.toString()
+	)
+
+	await student.save()
+	await classObj.save()
+
+	res.status(200).end()
+}
+
 exports.fetchClass = async (req, res) => {
 	let classObj = JSON.parse(JSON.stringify(req.class))
 

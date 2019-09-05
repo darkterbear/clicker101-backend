@@ -14,6 +14,13 @@ module.exports = app => {
 		.post(studentController.joinClass)
 
 	app
+		.route('/api/students/leave-class')
+		.post(authMiddleware.authenticate)
+		.post(authMiddleware.student)
+		.post(classMiddleware.class)
+		.post(studentController.leaveClass)
+
+	app
 		.route('/api/students/fetch-classes')
 		.get(authMiddleware.authenticate)
 		.get(authMiddleware.student)
