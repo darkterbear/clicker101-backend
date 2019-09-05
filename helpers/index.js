@@ -5,9 +5,9 @@ const validateInput = (...parameters) => {
 	return true
 }
 
-const hat = (length = 32) => {
+const hat = (length = 6) => {
 	var text = ''
-	var possible = 'abcdef0123456789'
+	var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 	for (var i = 0; i < length; i++)
 		text += possible.charAt(Math.floor(Math.random() * possible.length))

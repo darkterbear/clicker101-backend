@@ -12,8 +12,8 @@ exports.createClass = async (req, res) => {
 	let { name } = req.body
 	if (!name) return res.status(400).end()
 
-	let code = hat(8)
-	while ((await Classes.findOne({ code })) !== null) code = hat(8)
+	let code = hat()
+	while ((await Classes.findOne({ code })) !== null) code = hat()
 
 	const newClass = new Classes({
 		name,
