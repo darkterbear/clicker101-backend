@@ -7,8 +7,7 @@ const Students = require('../models/student')
 
 exports.authenticate = async (req, res, next) => {
 	// check for login credentials first
-	let email = req.body.email
-	let password = req.body.password
+	let { email, password } = req.body
 
 	// if no credentials, check if session exists
 	if (!email || !password) {
@@ -30,8 +29,8 @@ exports.authenticate = async (req, res, next) => {
 			})
 			.exec()
 
-		if ((teacher && student) || !(teacher || student))
-			return res.status(401).end()
+		// if user doesn't exist
+		if (!(teacher || student)) return res.status(401).end()
 
 		req.user = teacher ? teacher : student
 		req.userType = teacher ? 'teacher' : 'student'

@@ -6,9 +6,10 @@ const Classes = require('../models/class')
 const ProblemSets = require('../models/problemset')
 const Students = require('../models/student')
 
+// classes
 exports.createClass = async (req, res) => {
 	let teacher = req.user
-	let name = req.body.name
+	let { name } = req.body
 	if (!name) return res.status(400).end()
 
 	let code = hat(8)
@@ -17,7 +18,7 @@ exports.createClass = async (req, res) => {
 	const newClass = new Classes({
 		name,
 		teacher: teacher._id,
-		code: hat(8)
+		code
 	})
 
 	let classObject = await newClass.save()
@@ -29,9 +30,7 @@ exports.createClass = async (req, res) => {
 }
 
 exports.fetchClass = async (req, res) => {
-	let classId = req.query.classId
-
-	let classObj = await Classes.findOne({ _id: classId })
+	let classObj = await Classes.findOne({ _id: req.class._id })
 		.populate('students')
 		.populate('problemSets')
 		.populate('currentProblemSet')
@@ -41,21 +40,17 @@ exports.fetchClass = async (req, res) => {
 }
 
 exports.editClassName = async (req, res) => {
-	let { name, classId } = req.body
-	if (!validateInput(name, classId)) return res.status(400).end()
+	let { name } = req.body
+	if (!name) return res.status(400).end()
 
 	let classObj = req.class
 	classObj.name = name
-
 	await classObj.save()
 
 	res.status(200).end()
 }
 
 exports.deleteClass = async (req, res) => {
-	let { classId } = req.body
-	if (!validateInput(classId)) return res.status(400).end()
-
 	let classObj = req.class
 
 	// remove class from teacher
@@ -83,6 +78,7 @@ exports.deleteClass = async (req, res) => {
 	res.status(200).end()
 }
 
+// problem sets
 exports.createProblemSet = async (req, res) => {
 	let { name, problems, classId } = req.body
 	if (!validateInput(name, problems, classId)) return res.status(400).end()
@@ -103,6 +99,21 @@ exports.createProblemSet = async (req, res) => {
 	res.status(200).end()
 }
 
+exports.fetchProblemSet = async (req, res) => {
+	let { problemSetId } = req.query
+
+	let rawProblemSet = await ProblemSets.findOne({ _id: problemSetId })
+		.populate('classId')
+		.populate('problems.responses.student')
+		.exec()
+
+	let problemSet = JSON.parse(JSON.stringify(rawProblemSet))
+	problemSet.class = problemSet.classId
+	problemSet.classId = problemSet.class._id
+
+	res.status(200).json(problemSet)
+}
+
 exports.editProblemSetName = async (req, res) => {
 	let { name } = req.body
 	if (!name) return res.status(400).end()
@@ -116,9 +127,6 @@ exports.editProblemSetName = async (req, res) => {
 }
 
 exports.deleteProblemSet = async (req, res) => {
-	let { problemSetId } = req.body
-	if (!problemSetId) return res.status(400).end()
-
 	let problemSet = req.problemSet
 
 	// remove problemSet from class
@@ -135,7 +143,7 @@ exports.deleteProblemSet = async (req, res) => {
 }
 
 exports.addProblem = async (req, res) => {
-	let { problemSet } = req
+	let problemSet = req.problemSet
 	let { question, choices, correct } = req.body
 
 	problemSet.problems.push({
@@ -151,12 +159,17 @@ exports.addProblem = async (req, res) => {
 }
 
 exports.editProblem = async (req, res) => {
-	let { problemSet } = req
+	let problemSet = req.problemSet
 	let { problemNumber, question, choices, correct } = req.body
 
-	problemSet.problems[problemNumber].question = question
-	problemSet.problems[problemNumber].choices = choices
-	problemSet.problems[problemNumber].correct = correct
+	if (problemNumber < 0 || problemNumber >= problemSet.problems.length)
+		return res.status(400).end()
+
+	problemSet.problems[problemNumber] = {
+		question,
+		choices,
+		correct
+	}
 
 	await problemSet.save()
 
@@ -164,8 +177,11 @@ exports.editProblem = async (req, res) => {
 }
 
 exports.deleteProblem = async (req, res) => {
-	let { problemSet } = req
+	let problemSet = req.problemSet
 	let { problemNumber } = req.body
+
+	if (problemNumber < 0 || problemNumber >= problemSet.problems.length)
+		return res.status(400).end()
 
 	problemSet.problems.splice(problemNumber, 1)
 
@@ -174,6 +190,7 @@ exports.deleteProblem = async (req, res) => {
 	res.status(200).end()
 }
 
+// execution
 exports.executeProblemSet = async (req, res) => {
 	// check that the problem set hasn't been executed already
 	let problemSet = req.problemSet
@@ -192,6 +209,31 @@ exports.executeProblemSet = async (req, res) => {
 	).exec()
 
 	// TODO: socket push a start command to the student clients
+
+	res.status(200).end()
+}
+
+exports.stopThisProblem = async (req, res) => {
+	let classObj = req.class
+
+	// check that a problem set is running
+	if (!classObj.currentProblemSet) return res.status(409).end()
+
+	let problemSet = await ProblemSets.findOne({
+		_id: classObj.currentProblemSet
+	}).exec()
+
+	// check again that the problemset is running
+	if (problemSet.currentProblem === null) return res.status(409).end()
+
+	// if problem is already stopped, do nothing and respond 201
+	if (problemSet.currentProblem % 1 !== 0) return res.status(201).end()
+
+	// update the problem number
+	problemSet.currentProblem += 0.5
+	await problemSet.save()
+
+	// TODO: socket push a stop command to student clients
 
 	res.status(200).end()
 }
@@ -229,44 +271,4 @@ exports.startNextProblem = async (req, res) => {
 
 		res.status(200).end()
 	}
-}
-
-exports.stopThisProblem = async (req, res) => {
-	let classObj = req.class
-
-	// check that a problem set is running
-	if (!classObj.currentProblemSet) return res.status(409).end()
-
-	let problemSet = await ProblemSets.findOne({
-		_id: classObj.currentProblemSet
-	}).exec()
-
-	// check again that the problemset is running
-	if (problemSet.currentProblem === null) return res.status(409).end()
-
-	// if problem is already stopped, do nothing and respond 201
-	if (problemSet.currentProblem % 1 !== 0) return res.status(201).end()
-
-	// update the problem number
-	problemSet.currentProblem += 0.5
-	await problemSet.save()
-
-	// TODO: socket push next problem to student clients
-
-	res.status(200).end()
-}
-
-exports.fetchProblemSet = async (req, res) => {
-	let problemSetId = req.query.problemSetId
-
-	let rawProblemSet = await ProblemSets.findOne({ _id: problemSetId })
-		.populate('classId')
-		.populate('problems.responses.student')
-		.exec()
-
-	let problemSet = JSON.parse(JSON.stringify(rawProblemSet))
-	problemSet.class = problemSet.classId
-	problemSet.classId = problemSet.class._id
-
-	res.status(200).json(problemSet)
 }

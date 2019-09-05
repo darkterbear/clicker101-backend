@@ -4,7 +4,7 @@ let authMiddleware = require('../middlewares/auth')
 let classMiddleware = require('../middlewares/class')
 
 let indexController = require('../controllers/index')
-let studentController = require('../controllers/students')
+let studentController = require('../controllers/student')
 
 module.exports = app => {
 	app

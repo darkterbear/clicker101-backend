@@ -2,24 +2,15 @@
 
 // dependencies
 // const helper = require('sendgrid').mail
-const { validateInput } = require('../helpers/index')
+const { validateInput, isValidEmail } = require('../helpers/index')
 const auth = require('../helpers/auth')
 const Students = require('../models/student')
 const Teachers = require('../models/teacher')
 
-exports.logout = (req, res) => {
-	req.session.destroy(_ => {
-		res.status(200).end()
-	})
-}
-
-exports.fetchClasses = async (req, res) => {
-	res.status(200).json(req.user.classes)
-}
-
 exports.register = async (req, res) => {
 	let { name, email, password, type } = req.body
-	if (!validateInput(name, email, password, type)) return res.status(400).end()
+	if (!validateInput(name, email, password, type) || !isValidEmail(email))
+		return res.status(400).end()
 
 	let existingStudent = await Students.findOne({ email }).exec()
 	let existingTeacher = await Teachers.findOne({ email }).exec()
@@ -41,4 +32,14 @@ exports.register = async (req, res) => {
 	req.session._id = user._id
 
 	res.status(200).end()
+}
+
+exports.logout = (req, res) => {
+	req.session.destroy(_ => {
+		res.status(200).end()
+	})
+}
+
+exports.fetchClasses = async (req, res) => {
+	res.status(200).json(req.user.classes)
 }

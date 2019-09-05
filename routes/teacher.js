@@ -5,7 +5,7 @@ let classMiddleware = require('../middlewares/class')
 let problemSetMiddleware = require('../middlewares/problemset')
 
 let indexController = require('../controllers/index')
-let teacherController = require('../controllers/teachers')
+let teacherController = require('../controllers/teacher')
 
 module.exports = app => {
 	app

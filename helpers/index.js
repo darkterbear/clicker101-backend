@@ -20,12 +20,8 @@ const isValidEmail = s => {
 	return re.test(s.toLowerCase())
 }
 
-const isOnlyWhitespace = s => {
-	if (s === '') return true
-	return s.replace(/\s/g, '').length === 0
-}
-
 module.exports = {
 	validateInput,
-	hat
+	hat,
+	isValidEmail
 }

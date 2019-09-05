@@ -45,7 +45,7 @@ const sessionMiddleware = session({
 		httpOnly: true,
 		maxAge: cookieExpire,
 		path: '/',
-		secure: false
+		secure: false // TODO: production should be true
 	},
 	rolling: true,
 	unset: 'destroy'

@@ -7,10 +7,11 @@ const ProblemSets = require('../models/problemset')
 
 exports.joinClass = async (req, res) => {
 	let student = req.user
-	let code = req.body.code
+	let { code } = req.body
+
+	if (!validateInput(code)) return res.status(400).end()
 
 	let classObj = await Classes.findOne({ code }).exec()
-
 	if (!classObj) return res.status(404).end()
 
 	// add student to class
@@ -30,12 +31,15 @@ exports.getProblem = async (req, res) => {
 	let problemSet = await ProblemSets.findOne({
 		_id: classObj.currentProblemSet
 	}).exec()
+
 	if (!problemSet || problemSet.currentProblem === null)
 		return res.status(404).end()
 
+	// create deep copy of the problem to remove other responses and correct answer
 	let problem = JSON.parse(
 		JSON.stringify(problemSet.problems[problemSet.currentProblem])
 	)
+
 	delete problem.responses
 	delete problem.correct
 
@@ -43,10 +47,11 @@ exports.getProblem = async (req, res) => {
 }
 
 exports.answer = async (req, res) => {
-	let { answer } = req.body
-
 	let student = req.user
 	let classObj = req.class
+	let { answer } = req.body
+
+	if (answer === null || answer === undefined) return res.status(400)
 	if (!classObj.currentProblemSet) return res.status(404).end()
 
 	let problemSet = await ProblemSets.findOne({
