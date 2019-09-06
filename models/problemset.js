@@ -11,7 +11,6 @@ let ProblemSetSchema = new Schema(
 			type: Schema.Types.ObjectId,
 			ref: 'Classes'
 		},
-		// TODO: different types of problems
 		problems: [
 			{
 				question: String,

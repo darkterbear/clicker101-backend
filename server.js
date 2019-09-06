@@ -20,10 +20,7 @@ const server = require('http').Server(app)
 // mongodb
 mongoose.Promise = global.Promise
 mongoose.connect(
-	`mongodb+srv://clicker101app:${process.env.DATABASE_PASSWORD}@cluster0-pgatj.mongodb.net/clicker101db?retryWrites=true&w=majority`,
-	{
-		useMongoClient: true
-	}
+	`mongodb+srv://clicker101app:${process.env.DATABASE_PASSWORD}@cluster0-pgatj.mongodb.net/clicker101db?retryWrites=true&w=majority`
 )
 let db = mongoose.connection
 
@@ -46,7 +43,7 @@ const sessionMiddleware = session({
 		httpOnly: true,
 		maxAge: cookieExpire,
 		path: '/',
-		secure: false // TODO: production should be true
+		secure: process.env.PRODUCTION === 'true'
 	},
 	rolling: true,
 	unset: 'destroy'
