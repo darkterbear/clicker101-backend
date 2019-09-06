@@ -10,6 +10,7 @@ const app = express()
 const indexRoutes = require('./routes/index')
 const studentRoutes = require('./routes/student')
 const teacherRoutes = require('./routes/teacher')
+const sockets = require('./sockets')
 const port = 3000
 
 require('dotenv').config()
@@ -50,6 +51,8 @@ const sessionMiddleware = session({
 	rolling: true,
 	unset: 'destroy'
 })
+
+sockets.init(server, sessionMiddleware)
 
 app.use(sessionMiddleware)
 app.use(

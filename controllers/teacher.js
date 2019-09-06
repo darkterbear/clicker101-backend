@@ -5,6 +5,7 @@ const { validateInput, hat } = require('../helpers/index')
 const Classes = require('../models/class')
 const ProblemSets = require('../models/problemset')
 const Students = require('../models/student')
+const sockets = require('../sockets')
 
 // classes
 exports.createClass = async (req, res) => {
@@ -208,7 +209,7 @@ exports.executeProblemSet = async (req, res) => {
 		{ $set: { currentProblemSet: problemSet._id } }
 	).exec()
 
-	// TODO: socket push a start command to the student clients
+	sockets.progress(problemSet.classId)
 
 	res.status(200).end()
 }
@@ -233,7 +234,7 @@ exports.stopThisProblem = async (req, res) => {
 	problemSet.currentProblem += 0.5
 	await problemSet.save()
 
-	// TODO: socket push a stop command to student clients
+	sockets.progress(classObj._id)
 
 	res.status(200).end()
 }
@@ -259,7 +260,7 @@ exports.startNextProblem = async (req, res) => {
 		classObj.currentProblemSet = null
 		await classObj.save()
 
-		// TODO: socket push completion to student clients
+		sockets.progress(classObj._id)
 
 		res.status(200).end()
 	} else {
@@ -267,7 +268,7 @@ exports.startNextProblem = async (req, res) => {
 		problemSet.currentProblem = Math.ceil(problemSet.currentProblem)
 		await problemSet.save()
 
-		// TODO: socket push next problem to student clients
+		sockets.progress(classObj._id)
 
 		res.status(200).end()
 	}
